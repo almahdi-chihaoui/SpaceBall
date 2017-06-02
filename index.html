@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Space Movements</title>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+</head>
+<style type="text/css">
+    canvas {
+        border:1px solid #000;
+
+        float: left;
+    }
+    #btn-left{
+        display: block;
+        float: left;
+        width: 550px;
+        height: 50px;
+        margin-right: 100px;
+        background-color: blue;
+    }
+    #btn-right{
+        display: block;
+        float: left;
+        width: 550px;
+        height: 50px;
+
+        background-color: blue;
+    }
+    #score{
+        font-size: 27px;
+        color: dodgerblue;
+        font-weight: bold;
+    }
+</style>
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="btn-left"></div>
+<div id="btn-right"></div>
+<div id="score">Score : 0</div>
+
+<script type="text/javascript">
+    var canvas = document.getElementById("canvas"),
+            ctx = canvas.getContext("2d");
+
+    canvas.width = 1200;
+    canvas.height = 500;
+
+    var     x = 600,
+            y = 450,
+            velY = 0,
+            velX = 0.5,
+            speed = 1,
+            xBeginHole = 0,
+            xEndHole = 0,
+            yObstacle = 0,
+            velObstacle = 0,
+            obstacleSpeed = 2,
+            fail = false,
+            passed = false,
+            score = 0,
+            keys = [];
+
+    xBeginHole = Math.floor((Math.random() * 1000) + 50);
+    xEndHole = xBeginHole + 80;
+
+    function update() {
+
+        // controls the ball
+        if (keys[39]) {
+
+            velX += speed;
+
+        }
+        if (keys[37]) {
+
+            velX -= speed;
+
+        }
+
+        //controls the obstacle
+        if (yObstacle+16 < y){
+            velObstacle = obstacleSpeed;
+        } else if (yObstacle >= y) {
+            if ((x-13 <= xBeginHole || x+13 >= xEndHole)&& !passed){
+                alert('Game Over !! Your score is : ' + score);
+                fail = true;
+            } else if (!passed) {
+                //passed
+                velObstacle = obstacleSpeed;
+                passed = true;
+                score++;
+                $("#score").text("Score : " + score);
+
+            }
+        } /*else {
+            //passed
+            velObstacle = obstacleSpeed;
+        }*/
+
+        //move the obstacle
+        yObstacle += velObstacle;
+
+        //move the ball
+        x += velX;
+
+        if (x >= 1185) {
+            x = 1185;
+            velX = 0.5;
+        } else if (x <= 5) {
+            x = 5;
+            velX = 0.5;
+        }
+        if (yObstacle >= 500 && passed) {
+            xBeginHole = Math.floor((Math.random() * 1000) + 50);
+            xEndHole = xBeginHole + 80;
+            yObstacle = 0;
+            obstacleSpeed += 0.3;
+            passed = false;
+        }
+
+
+        //redraw
+        ctx.clearRect(0, 0, 1200, 500);
+        ctx.beginPath();
+        //draw the ball
+        ctx.arc(x, y, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        //draw the obstacle
+        ctx.lineWidth="6";
+        ctx.strokeStyle="red";
+        ctx.moveTo(0, yObstacle);
+
+        ctx.lineTo(xBeginHole, yObstacle);
+        ctx.stroke();
+
+        ctx.moveTo(xEndHole,yObstacle);
+        ctx.lineTo(1200, yObstacle)
+        ctx.stroke();
+        if (!fail){
+            setTimeout(update, 25);
+        }
+
+    }
+
+    update();
+    $("#btn-right").mousedown(function(){
+       keys[37] = true;
+        $(this).css('background-color','blueviolet')
+    });
+    $("#btn-right").mouseup(function(){
+        keys[37] = false;
+        $(this).css('background-color','blue')
+    });
+    $("#btn-left").mousedown(function(){
+        keys[39] = true;
+        $(this).css('background-color','blueviolet')
+    });
+    $("#btn-left").mouseup(function(){
+        keys[39] = false;
+        $(this).css('background-color','blue')
+    });
+    document.body.addEventListener("keydown", function (e) {
+        keys[e.keyCode] = true;
+    });
+    document.body.addEventListener("keyup", function (e) {
+        keys[e.keyCode] = false;
+    });
+</script>
+
+</body>
+</html>
